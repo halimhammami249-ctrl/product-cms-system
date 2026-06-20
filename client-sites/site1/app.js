@@ -1,4 +1,4 @@
-fetch('http://localhost:3001/api/site1/products')
+fetch('https://product-cms-api.onrender.com/api/${client}/products')
   .then((r) => r.json())
   .then((products) => {
     const container = document.getElementById('products');

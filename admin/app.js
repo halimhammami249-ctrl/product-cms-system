@@ -4,7 +4,9 @@ let client = '';
 async function load() {
   client = document.getElementById('client').value;
 
-  const res = await fetch(`http://localhost:3001/api/${client}/products`);
+  const res = await fetch(
+    `const API_URL = "https://product-cms-api.onrender.com";`,
+  );
   products = await res.json();
 
   render();
@@ -44,7 +46,7 @@ function deleteProduct(i) {
 }
 
 async function save() {
-  await fetch(`http://localhost:3001/api/${client}/products`, {
+  await fetch(`https://product-cms-api.onrender.com/api/${client}/products`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(products),
