@@ -1,47 +1,70 @@
 const express = require('express');
-const cors = require('cors');
 const fs = require('fs');
-const path = require('path');
-
+const cors = require('cors');
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 
-const DATA_DIR = path.join(__dirname, 'data');
+// =====================
+// SIMPLE AUTH (NO DB)
+// =====================
+const ADMIN_USER = 'admin';
+const ADMIN_PASSWORD = '1234';
+const ADMIN_TOKEN = 'secure-token-123';
 
-// ensure data folder exists
-if (!fs.existsSync(DATA_DIR)) {
-  fs.mkdirSync(DATA_DIR);
-}
+// =====================
+// LOGIN
+// =====================
+app.post('/api/login', (req, res) => {
+  const { username, password } = req.body;
 
-// helper
-function getFile(client) {
-  return path.join(DATA_DIR, `${client}.json`);
-}
-
-// GET products
-app.get('/api/:client/products', (req, res) => {
-  const file = getFile(req.params.client);
-
-  if (!fs.existsSync(file)) {
-    fs.writeFileSync(file, '[]');
+  if (username === ADMIN_USER && password === ADMIN_PASSWORD) {
+    return res.json({ token: ADMIN_TOKEN });
   }
 
-  const data = fs.readFileSync(file, 'utf8');
-  res.json(JSON.parse(data));
+  return res.status(401).json({ error: 'Invalid credentials' });
 });
 
-// POST products
-app.post('/api/:client/products', (req, res) => {
-  const file = getFile(req.params.client);
+// =====================
+// AUTH MIDDLEWARE
+// =====================
+function auth(req, res, next) {
+  const token = req.headers.authorization;
 
-  fs.writeFileSync(file, JSON.stringify(req.body, null, 2));
+  if (token === ADMIN_TOKEN) {
+    return next();
+  }
+
+  return res.status(403).json({ error: 'Unauthorized' });
+}
+
+// =====================
+// GET PRODUCTS (PUBLIC)
+// =====================
+app.get('/api/:site/products', (req, res) => {
+  const site = req.params.site;
+
+  try {
+    const data = fs.readFileSync(`data/${site}.json`);
+    res.json(JSON.parse(data));
+  } catch (err) {
+    res.json([]);
+  }
+});
+
+// =====================
+// SAVE PRODUCTS (PROTECTED)
+// =====================
+app.post('/api/:site/products', auth, (req, res) => {
+  const site = req.params.site;
+  const data = req.body;
+
+  fs.writeFileSync(`data/${site}.json`, JSON.stringify(data, null, 2));
 
   res.json({ success: true });
 });
 
+// =====================
 const PORT = process.env.PORT || 3001;
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+app.listen(PORT, () => console.log('Server running on', PORT));

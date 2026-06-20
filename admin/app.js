@@ -1,27 +1,49 @@
 const API_URL = 'https://product-cms-api.onrender.com';
 
+let token = '';
 let products = [];
 let client = '';
 
-async function load() {
-  client = document.getElementById('client').value;
+// =====================
+// LOGIN
+// =====================
+async function login() {
+  const username = document.getElementById('username').value;
+  const password = document.getElementById('password').value;
 
-  if (!client) {
-    alert('Please select a client');
-    return;
-  }
+  const res = await fetch(`${API_URL}/api/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password }),
+  });
 
-  try {
-    const res = await fetch(`${API_URL}/api/${client}/products`);
-    products = await res.json();
+  const data = await res.json();
 
-    render();
-  } catch (err) {
-    console.error('Load error:', err);
-    alert('Failed to load products');
+  if (data.token) {
+    token = data.token;
+    alert('Login success');
+  } else {
+    alert('Login failed');
   }
 }
 
+// =====================
+// LOAD PRODUCTS
+// =====================
+async function load() {
+  client = document.getElementById('client').value;
+
+  if (!client) return alert('Select client');
+
+  const res = await fetch(`${API_URL}/api/${client}/products`);
+  products = await res.json();
+
+  render();
+}
+
+// =====================
+// RENDER UI
+// =====================
 function render() {
   const app = document.getElementById('app');
   app.innerHTML = '';
@@ -31,14 +53,18 @@ function render() {
       <div style="margin-bottom:10px;">
         <input value="${p.name}" onchange="products[${i}].name=this.value" />
         <input value="${p.price}" onchange="products[${i}].price=this.value" />
-        <button onclick="deleteProduct(${i})">Delete</button>
       </div>
     `;
   });
 
-  app.innerHTML += `<button onclick="add()">Add</button>`;
+  app.innerHTML += `
+    <button onclick="add()">Add</button>
+  `;
 }
 
+// =====================
+// ADD PRODUCT
+// =====================
 function add() {
   products.push({
     name: '',
@@ -50,20 +76,18 @@ function add() {
   render();
 }
 
-function deleteProduct(i) {
-  products.splice(i, 1);
-  render();
-}
-
+// =====================
+// SAVE (PROTECTED)
+// =====================
 async function save() {
-  if (!client) {
-    alert('Select client first');
-    return;
-  }
+  if (!token) return alert('Login required');
 
   await fetch(`${API_URL}/api/${client}/products`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: token,
+    },
     body: JSON.stringify(products),
   });
 
