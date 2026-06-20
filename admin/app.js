@@ -1,15 +1,25 @@
+const API_URL = 'https://product-cms-api.onrender.com';
+
 let products = [];
 let client = '';
 
 async function load() {
   client = document.getElementById('client').value;
 
-  const res = await fetch(
-    `const API_URL = "https://product-cms-api.onrender.com";`,
-  );
-  products = await res.json();
+  if (!client) {
+    alert('Please select a client');
+    return;
+  }
 
-  render();
+  try {
+    const res = await fetch(`${API_URL}/api/${client}/products`);
+    products = await res.json();
+
+    render();
+  } catch (err) {
+    console.error('Load error:', err);
+    alert('Failed to load products');
+  }
 }
 
 function render() {
@@ -18,12 +28,12 @@ function render() {
 
   products.forEach((p, i) => {
     app.innerHTML += `
-            <div>
-                <input value="${p.name}" onchange="products[${i}].name=this.value">
-                <input value="${p.price}" onchange="products[${i}].price=this.value">
-                <button onclick="deleteProduct(${i})">Delete</button>
-            </div>
-        `;
+      <div style="margin-bottom:10px;">
+        <input value="${p.name}" onchange="products[${i}].name=this.value" />
+        <input value="${p.price}" onchange="products[${i}].price=this.value" />
+        <button onclick="deleteProduct(${i})">Delete</button>
+      </div>
+    `;
   });
 
   app.innerHTML += `<button onclick="add()">Add</button>`;
@@ -46,7 +56,12 @@ function deleteProduct(i) {
 }
 
 async function save() {
-  await fetch(`https://product-cms-api.onrender.com/api/${client}/products`, {
+  if (!client) {
+    alert('Select client first');
+    return;
+  }
+
+  await fetch(`${API_URL}/api/${client}/products`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(products),
