@@ -1,6 +1,6 @@
 const API_URL = 'https://product-cms-api.onrender.com';
 
-let token = '';
+let token = localStorage.getItem('token') || '';
 let products = [];
 let client = '';
 
@@ -21,10 +21,20 @@ async function login() {
 
   if (data.token) {
     token = data.token;
-    alert('Login success');
+    localStorage.setItem('token', token);
+    alert('Login success!');
   } else {
-    alert('Login failed');
+    alert('Wrong credentials');
   }
+}
+
+// =====================
+// LOGOUT
+// =====================
+function logout() {
+  token = '';
+  localStorage.removeItem('token');
+  alert('Logged out');
 }
 
 // =====================
@@ -33,7 +43,10 @@ async function login() {
 async function load() {
   client = document.getElementById('client').value;
 
-  if (!client) return alert('Select client');
+  if (!client) {
+    alert('Enter client name (site1)');
+    return;
+  }
 
   const res = await fetch(`${API_URL}/api/${client}/products`);
   products = await res.json();
@@ -57,9 +70,7 @@ function render() {
     `;
   });
 
-  app.innerHTML += `
-    <button onclick="add()">Add</button>
-  `;
+  app.innerHTML += `<button onclick="add()">Add Product</button>`;
 }
 
 // =====================
@@ -77,10 +88,18 @@ function add() {
 }
 
 // =====================
-// SAVE (PROTECTED)
+// SAVE PRODUCTS (PROTECTED)
 // =====================
 async function save() {
-  if (!token) return alert('Login required');
+  if (!token) {
+    alert('You must login first!');
+    return;
+  }
+
+  if (!client) {
+    alert('Select client first');
+    return;
+  }
 
   await fetch(`${API_URL}/api/${client}/products`, {
     method: 'POST',
@@ -91,5 +110,5 @@ async function save() {
     body: JSON.stringify(products),
   });
 
-  alert('Saved!');
+  alert('Saved successfully!');
 }

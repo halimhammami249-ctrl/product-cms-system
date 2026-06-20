@@ -1,13 +1,22 @@
 <!doctype html>
 <html>
   <head>
-    <title>CMS Admin</title>
+    <title>Admin Panel</title>
   </head>
   <body>
-    <h2>Product CMS</h2>
+    <h2>Admin Login</h2>
 
-    <input id="client" placeholder="client name (site1)" />
-    <button onclick="load()">Load</button>
+    <input id="username" placeholder="username" />
+    <input id="password" type="password" placeholder="password" />
+    <button onclick="login()">Login</button>
+
+    <button onclick="logout()">Logout</button>
+
+    <hr />
+
+    <h3>Client</h3>
+    <input id="client" placeholder="site1" />
+    <button onclick="load()">Load Products</button>
     <button onclick="save()">Save</button>
 
     <hr />
