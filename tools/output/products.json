@@ -1,32 +1,40 @@
-[
-  {
-    "name": "Laptop Pro",
-    "price": 1200,
-    "image": "/images/laptop.jpg",
-    "description": "High performance laptop"
-  },
-  {
-    "name": "iPhone 14",
-    "price": 900,
-    "image": "/images/iphone.jpg",
-    "description": "Latest Apple phone"
-  },
-  {
-    "name": "Headphones",
-    "price": 150,
-    "image": "/images/headphones.jpg",
-    "description": "Noise cancelling headset"
-  },
-  {
-    "name": "Smart Watch",
-    "price": 200,
-    "image": "/images/watch.jpg",
-    "description": "Fitness tracking watch"
-  },
-  {
-    "name": "Tablet S",
-    "price": 400,
-    "image": "/images/tablet.jpg",
-    "description": "Lightweight tablet"
-  }
-]
+{
+  "products": [
+    {
+      "name": "Laptop Pro",
+      "price": 1200,
+      "image": "/images/laptop-pro.png",
+      "description": "High performance laptop built for demanding workflows and all-day productivity."
+    },
+    {
+      "name": "Wireless Headphones",
+      "price": 240,
+      "image": "/images/wireless-headphones.png",
+      "description": "Premium over-ear headphones with active noise cancellation and rich, balanced sound."
+    },
+    {
+      "name": "Smartphone X",
+      "price": 899,
+      "image": "/images/smartphone-x.png",
+      "description": "Edge-to-edge display, powerful camera system, and a battery that lasts all day."
+    },
+    {
+      "name": "Smartwatch Series 5",
+      "price": 320,
+      "image": "/images/smartwatch-series-5.png",
+      "description": "Track fitness, notifications, and health metrics from your wrist with style."
+    },
+    {
+      "name": "Mechanical Keyboard",
+      "price": 130,
+      "image": "/images/mechanical-keyboard.png",
+      "description": "Compact mechanical keyboard with tactile switches for a precise typing experience."
+    },
+    {
+      "name": "4K Monitor",
+      "price": 560,
+      "image": "/images/4k-monitor.png",
+      "description": "Crisp 4K resolution on a slim, color-accurate panel perfect for work and play."
+    }
+  ]
+}

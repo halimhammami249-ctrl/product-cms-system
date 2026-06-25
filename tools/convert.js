@@ -9,7 +9,7 @@ const outputDir = path.join(__dirname, 'output');
 const outputImages = path.join(outputDir, 'images');
 const outputJson = path.join(outputDir, 'products.json');
 
-// Clean output folder first
+// Clean output folder
 fs.emptyDirSync(outputDir);
 fs.ensureDirSync(outputImages);
 
@@ -20,30 +20,73 @@ const sheet = workbook.Sheets[sheetName];
 
 let data = xlsx.utils.sheet_to_json(sheet);
 
+// Helper: slugify product name
+function slugify(text) {
+  return text
+    .toString()
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '-') // spaces → -
+    .replace(/[^\w\-]/g, ''); // remove special chars
+}
+
+// Supported extensions
+const extensions = ['.jpg', '.jpeg', '.png', '.webp'];
+
 // Process products
 data = data.map((item) => {
-  const imageName = item.image || '';
+  const name = item.name || item.Name || '';
+  const price = Number(item.price || item.Price) || 0;
+  const description = item.description || item.Description || '';
 
-  // Copy image from input → output
-  const srcImage = path.join(inputImages, imageName);
-  const destImage = path.join(outputImages, imageName);
+  let finalImagePath = '';
+  let foundImage = false;
 
-  if (fs.existsSync(srcImage)) {
-    fs.copySync(srcImage, destImage);
-  } else {
-    console.log(`⚠️ Image not found: ${imageName}`);
+  if (name) {
+    const baseName = slugify(name);
+
+    // Try all extensions
+    for (const ext of extensions) {
+      const fileName = baseName + ext;
+      const srcImage = path.join(inputImages, fileName);
+      const destImage = path.join(outputImages, fileName);
+
+      if (fs.existsSync(srcImage)) {
+        try {
+          fs.copySync(srcImage, destImage);
+          finalImagePath = `/images/${fileName}`;
+          console.log(`✅ Copied: ${fileName}`);
+          foundImage = true;
+          break;
+        } catch (err) {
+          console.log(`❌ Error copying ${fileName}:`, err.message);
+        }
+      }
+    }
+
+    if (!foundImage) {
+      console.log(`⚠️ No matching image found for: ${name}`);
+    }
   }
 
   return {
-    name: item.name || '',
-    price: Number(item.price) || 0,
-    image: '/images/' + imageName,
-    description: item.description || '',
+    name,
+    price,
+    image: finalImagePath,
+    description,
   };
 });
 
+// Remove invalid products (optional safety)
+data = data.filter((p) => p.name);
+
+// Decap CMS format
+const finalOutput = {
+  products: data,
+};
+
 // Save JSON
-fs.writeFileSync(outputJson, JSON.stringify(data, null, 2));
+fs.writeFileSync(outputJson, JSON.stringify(finalOutput, null, 2));
 
 console.log('✅ Import completed!');
 console.log('📦 Output generated in /output folder');
